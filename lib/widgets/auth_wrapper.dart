@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:literacy_check/screens/splash_screen.dart';
+import 'package:literacy_check/services/user_preferences.dart';
 import '../auth_service.dart';
 import '../utils/navigation.dart';
 
@@ -9,40 +10,63 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        // If still loading
-        if (snapshot.connectionState == ConnectionState.waiting) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: UserPreferences.getLoginState(),
+      builder: (context, prefsSnapshot) {
+        if (prefsSnapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingScreen();
         }
 
-        // If user is authenticated
-        if (snapshot.hasData && snapshot.data != null) {
-          return FutureBuilder<String?>(
-            future: _auth.getUserRole(snapshot.data!.email!),
-            builder: (context, roleSnapshot) {
-              if (roleSnapshot.connectionState == ConnectionState.waiting) {
+        final loginState = prefsSnapshot.data;
+        if (loginState != null && loginState['isLoggedIn'] == true) {
+          // If admin credentials are stored, return admin home
+          if (loginState['role'] == 'admin') {
+            return AppNavigation.getHomeByRole('admin');
+          }
+
+          // For other roles, use Firebase auth state
+          return StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return _buildLoadingScreen();
               }
 
-              if (roleSnapshot.hasData && roleSnapshot.data != null) {
-                return AppNavigation.getHomeByRole(roleSnapshot.data!);
+              if (snapshot.hasData && snapshot.data != null) {
+                return FutureBuilder<String?>(
+                  future: _auth.getUserRole(snapshot.data!.email!),
+                  builder: (context, roleSnapshot) {
+                    if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                      return _buildLoadingScreen();
+                    }
+
+                    if (roleSnapshot.hasData && roleSnapshot.data != null) {
+                      return AppNavigation.getHomeByRole(roleSnapshot.data!);
+                    }
+
+                    // If no role is found, sign out and show login
+                    FirebaseAuth.instance.signOut();
+                    return SplashScreen();
+                  },
+                );
               }
 
-              // If no role is found, sign out and show login
-              FirebaseAuth.instance.signOut();
+              // If user is not authenticated, check stored credentials
+              if (loginState['isLoggedIn'] == true && loginState['role'] != null) {
+                return AppNavigation.getHomeByRole(loginState['role']);
+              }
+
+              // If no stored credentials, show login
               return SplashScreen();
             },
           );
         }
 
-        // If user is not authenticated, show login
+        // If no stored login state, show splash screen
         return SplashScreen();
       },
     );
   }
-
   // Loading screen with a smooth animation
   Widget _buildLoadingScreen() {
     return Scaffold(

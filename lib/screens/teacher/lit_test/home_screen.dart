@@ -325,23 +325,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: sectionColors[section],
                                   ),
                                 ),
-                                if (isCompleted)
-                                  Positioned(
-                                    right: 0,
-                                    top: 0,
-                                    child: Container(
-                                      padding: EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
                               ],
                             ),
                             SizedBox(height: 16),

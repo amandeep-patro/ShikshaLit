@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:literacy_check/auth_service.dart';
 import 'package:literacy_check/screens/role_selection.dart';
 import 'package:literacy_check/screens/teacher/student_list_page.dart';
+import 'package:literacy_check/screens/teacher/teacher_dashboard_page.dart';
 
 class TeacherHome extends StatelessWidget {
   @override
@@ -40,6 +41,23 @@ class TeacherHome extends StatelessWidget {
                   leading: Icon(Icons.group, color: Colors.blue),
                   title: Text("Students"),
                   subtitle: Text("View and manage students under this teacher"),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TeacherDashboard()),
+                );
+              },
+              child: Card(
+                elevation: 4,
+                child: ListTile(
+                  leading: Icon(Icons.dashboard, color: Colors.purple),
+                  title: Text("Dashboard"),
+                  subtitle: Text("View student progress and analytics"),
                   trailing: Icon(Icons.arrow_forward_ios),
                 ),
               ),

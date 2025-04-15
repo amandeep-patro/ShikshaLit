@@ -72,11 +72,10 @@ class _RhymingWordsScreenState extends State<RhymingWordsScreen> {
 
   Future<void> _fetchRhymingExercises() async {
     try {
-      final doc =
-          await FirebaseFirestore.instance
-              .collection('literacycheck')
-              .doc('rhyming')
-              .get();
+      final doc = await FirebaseFirestore.instance
+          .collection('literacycheck')
+          .doc('rhyming')
+          .get();
 
       final data = doc.data();
       print('Raw document data: ${doc.data()}');
@@ -110,6 +109,16 @@ class _RhymingWordsScreenState extends State<RhymingWordsScreen> {
           }
         }
 
+        // Pick 5 random exercises (or fewer if less are available)
+        if (parsedExercises.length > 5) {
+          // Shuffle the parsed exercises
+          parsedExercises.shuffle();
+          // Take just the first 5
+          parsedExercises = parsedExercises.sublist(0, 5);
+          // Also limit the shuffled options accordingly
+          allShuffledOptions = allShuffledOptions.sublist(0, 5);
+        }
+
         if (mounted) {
           setState(() {
             rhymingExercises = parsedExercises;
@@ -124,6 +133,7 @@ class _RhymingWordsScreenState extends State<RhymingWordsScreen> {
           });
         }
       } else {
+        // Rest of your error handling...
         if (mounted) {
           setState(() {
             isLoading = false;
@@ -134,6 +144,7 @@ class _RhymingWordsScreenState extends State<RhymingWordsScreen> {
         }
       }
     } catch (e) {
+      // Rest of your error handling...
       print('Error fetching rhyming exercises: $e');
       if (mounted) {
         setState(() {
@@ -315,7 +326,28 @@ class _RhymingWordsScreenState extends State<RhymingWordsScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Are you sure?'),
+                    content: Text(
+                      'You will lose your progress if you exit now.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Stay'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Exit'),
+                      ),
+                    ],
+                  ),
+                );
               },
               child: Text('Exit', style: TextStyle(color: Colors.white)),
             ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:literacy_check/auth_service.dart';
+import 'package:literacy_check/screens/admin/admin_dashboard_page.dart';
 import 'package:literacy_check/screens/role_selection.dart';
+import 'package:literacy_check/services/user_preferences.dart';
+
 
 class AdminHome extends StatelessWidget {
   @override
@@ -11,6 +14,7 @@ class AdminHome extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () async {
+              await UserPreferences.clearLoginState();
               await AuthService().signOut();
               Navigator.pushAndRemoveUntil(
                 context,
@@ -22,12 +26,27 @@ class AdminHome extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('View all schools, teachers, and students.'),
-            SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AdminDashboard()),
+                );
+              },
+              child: Card(
+                elevation: 4,
+                child: ListTile(
+                  leading: Icon(Icons.dashboard, color: Colors.purple),
+                  title: Text("Dashboard"),
+                  subtitle: Text("View progress and analytics"),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                ),
+              ),
+            ),
           ],
         ),
       ),

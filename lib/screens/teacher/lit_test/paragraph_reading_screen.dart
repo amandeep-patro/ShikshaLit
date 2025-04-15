@@ -360,26 +360,25 @@ class _ParagraphReadingScreenState extends State<ParagraphReadingScreen>
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder:
-                      (context) => AlertDialog(
-                        title: Text('Are you sure?'),
-                        content: Text(
-                          'You will lose your progress if you exit now.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text('Stay'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: Text('Exit'),
-                          ),
-                        ],
+                  builder: (context) => AlertDialog(
+                    title: Text('Are you sure?'),
+                    content: Text(
+                      'You will lose your progress if you exit now.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Stay'),
                       ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Exit'),
+                      ),
+                    ],
+                  ),
                 );
               },
               child: Text('Exit', style: TextStyle(color: Colors.white)),

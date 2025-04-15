@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
 import '../../../services/scores_service.dart';
+import 'dart:async';
 
 class SentencesScreen extends StatefulWidget {
   @override
@@ -19,6 +21,8 @@ class SentencesScreen extends StatefulWidget {
 class _SentencesScreenState extends State<SentencesScreen>
     with SingleTickerProviderStateMixin {
   late FlutterSoundRecorder _recorder;
+  Timer? _recordingTimer;
+  late FlutterTts flutterTts;
   String? audioPath;
   bool isRecording = false;
   bool hasRecorded = false;
@@ -42,6 +46,7 @@ class _SentencesScreenState extends State<SentencesScreen>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
+    flutterTts = FlutterTts();
     _initializeRecorder();
     _fetchItems();
   }
@@ -52,16 +57,29 @@ class _SentencesScreenState extends State<SentencesScreen>
   }
 
   Future<void> toggleRecording() async {
+    if (!mounted) return;
+
     if (!isRecording) {
       final dir = await getTemporaryDirectory();
       audioPath = '${dir.path}/recording.aac';
       await _recorder.startRecorder(toFile: audioPath);
+
       setState(() => isRecording = true);
       _micAnimationController.repeat(reverse: true);
+
+      // Add recording timer
+      _recordingTimer?.cancel();
+      _recordingTimer = Timer(Duration(seconds: 30), () {
+        if (isRecording) {
+          toggleRecording();
+        }
+      });
     } else {
+      _recordingTimer?.cancel();
       await _recorder.stopRecorder();
       _micAnimationController.stop();
       _micAnimationController.reset();
+
       setState(() {
         isRecording = false;
         hasRecorded = true;
@@ -101,6 +119,7 @@ class _SentencesScreenState extends State<SentencesScreen>
   }
 
   Future<void> _transcribeAudio() async {
+    if (!mounted) return;
     if (audioPath == null) return;
 
     setState(() {
@@ -126,6 +145,7 @@ class _SentencesScreenState extends State<SentencesScreen>
         final transcript =
             jsonResponse['results']['channels'][0]['alternatives'][0]['transcript'];
 
+        if (!mounted) return;
         setState(() {
           transcribedText =
               transcript.isEmpty ? 'No speech detected' : transcript;
@@ -146,12 +166,14 @@ class _SentencesScreenState extends State<SentencesScreen>
           isLoading = false;
         });
       } else {
+        if (!mounted) return;
         setState(() {
           transcribedText = 'Transcription error: No results';
           isLoading = false;
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         transcribedText = 'Error: $e';
         isLoading = false;
@@ -202,6 +224,8 @@ class _SentencesScreenState extends State<SentencesScreen>
   }
 
   void _nextQuestion() {
+    if (!mounted) return;
+
     if (currentQuestionIndex < questions.length - 1) {
       setState(() {
         currentQuestionIndex++;
@@ -216,6 +240,8 @@ class _SentencesScreenState extends State<SentencesScreen>
   }
 
   Future<void> _finishTest() async {
+    if (!mounted) return;
+
     // Calculate average score from percentages
     final score =
         sentencePercentages.isEmpty
@@ -244,8 +270,10 @@ class _SentencesScreenState extends State<SentencesScreen>
 
   @override
   void dispose() {
+    _recordingTimer?.cancel();
     _recorder.closeRecorder();
-    _micAnimationController.dispose();
+    flutterTts.stop();
+    _micAnimationController.dispose(); 
     super.dispose();
   }
 

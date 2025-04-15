@@ -221,6 +221,35 @@ class _ListeningComprehensionScreenState
         appBar: AppBar(
           title: Text('Listening Comprehension'),
           automaticallyImplyLeading: false,
+          actions: [
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Are you sure?'),
+                    content: Text(
+                      'You will lose your progress if you exit now.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Stay'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Exit'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Text('Exit', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
         body: Center(child: CircularProgressIndicator()),
       );
@@ -251,6 +280,35 @@ class _ListeningComprehensionScreenState
         appBar: AppBar(
           title: Text('Listening Comprehension'),
           automaticallyImplyLeading: false,
+          actions: [
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Are you sure?'),
+                    content: Text(
+                      'You will lose your progress if you exit now.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Stay'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Exit'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Text('Exit', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:literacy_check/services/user_preferences.dart';
 import 'services/id_service.dart';
 
 class AuthService {
@@ -16,6 +17,12 @@ class AuthService {
       // Admin login check
       if (email == dotenv.env['ADMIN_EMAIL'] &&
           password == dotenv.env['ADMIN_PASSWORD']) {
+
+        await UserPreferences.setLoginState(
+          isLoggedIn: true,
+          email: email,
+          role: 'admin',
+        );
         return {'user': null, 'role': 'admin'};
       }
 
@@ -27,6 +34,12 @@ class AuthService {
 
       final role = await getUserRole(result.user!.email!);
       if (role == null) throw 'User role not found';
+
+      await UserPreferences.setLoginState(
+        isLoggedIn: true,
+        email: result.user!.email,
+        role: role,
+      );
 
       return {'user': result.user, 'role': role};
     } catch (e) {

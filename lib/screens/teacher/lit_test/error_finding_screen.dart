@@ -34,8 +34,8 @@ class _ErrorFindingScreenState extends State<ErrorFindingScreen> {
   
   Future<void> _initTts() async {
     flutterTts = FlutterTts();
-    await flutterTts.setLanguage("en-US"); // Set to Indian English
-    await flutterTts.setSpeechRate(0.5); // Slower speech rate for learning
+    await flutterTts.setLanguage("en-IN");
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
     
@@ -208,7 +208,9 @@ class _ErrorFindingScreenState extends State<ErrorFindingScreen> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text('Are you sure?'),
-                    content: Text('You will lose your progress if you exit now.'),
+                    content: Text(
+                      'You will lose your progress if you exit now.',
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
